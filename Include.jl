@@ -7,9 +7,17 @@ const _PATH_TO_SIMS = joinpath(_ROOT, "sims");
 
 # make sure all is up to date -
 using Pkg
-if (isfile(joinpath(_ROOT, "Manifest.toml")) == false) # have manifest file, we are good. Otherwise, we need to instantiate the environment
-    Pkg.add(path="https://github.com/varnerlab/VLQuantitativeFinancePackage.jl.git")
-    Pkg.activate("."); Pkg.resolve(); Pkg.instantiate(); Pkg.update();
+# Activate the local project first to avoid modifying the user's global environment
+Pkg.activate(".")
+if (isfile(joinpath(_ROOT, "Manifest.toml")) == false)
+    # Add the VLQuantitativeFinancePackage into this project environment only.
+    # Use `url=` so the add is explicit about the remote repository.
+    try
+        Pkg.add(url="https://github.com/varnerlab/VLQuantitativeFinancePackage.jl.git")
+    catch e
+        @warn "Failed to add VLQuantitativeFinancePackage; continuing. Error: $e"
+    end
+    Pkg.resolve(); Pkg.instantiate(); Pkg.update();
 end
 
 # load external packages -
